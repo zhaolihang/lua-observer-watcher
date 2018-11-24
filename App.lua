@@ -1,2 +1,2 @@
 require('Functions')
-require('Watcher')
+require('Observer')

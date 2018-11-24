@@ -1,4 +1,4 @@
--- 来自 https://github.com/chukong/quick-cocos2d-x added by GG Co. zlh
+-- 来自 https://github.com/chukong/quick-cocos2d-x added by zlh
 --[[
 Copyright (c) 2011-2014 chukong-inc.com
 
