@@ -1,3 +1,2 @@
 require('Functions')
-print(class)
-print(class)
+require('Watcher')
