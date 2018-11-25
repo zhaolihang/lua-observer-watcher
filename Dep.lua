@@ -2,11 +2,12 @@ local uid = 0;
 
 local Dep = class('Dep');
 
-Dep.target = nil;
+Dep.target = nil;--Watcher
 
 function Dep:ctor()
-    self.id = uid++;
-    self.subs = {};
+    uid = uid + 1;
+    self.id = uid;
+    self.subs = {}; --Array<Watcher>
 end
 
 function Dep:addSub(sub)
@@ -41,3 +42,9 @@ end
 local function popTarget()
     Dep.target = table.remove(targetStack);
 end
+
+return {
+    Dep = Dep;
+    pushTarget = pushTarget;
+    popTarget = popTarget;
+}

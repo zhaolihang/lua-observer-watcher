@@ -68,8 +68,11 @@ local function observe(original)
         return original[k];
     end
     local __newindex = function(t,k,v) --setter
-        original[k] = observe(v);
-        --notify
+        local newValue = observe(v);
+        if newValue ~= original[k] then
+            original[k] = newValue;
+            --notify
+        end
     end
     local metatable = { __index = __index; __newindex = __newindex; }
     setmetatable(proxy,metatable);
