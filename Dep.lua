@@ -1,12 +1,8 @@
-local uid = 0;
-
 local Dep = class('Dep');
 
 Dep.target = nil;--Watcher
 
 function Dep:ctor()
-    uid = uid + 1;
-    self.id = uid;
     self.subs = {}; --Array<Watcher>
 end
 
@@ -25,9 +21,9 @@ function Dep:depend()
 end
 
 function Dep:notify()
-    local subs = table.unpack(self.subs);
-    for _,cb in ipairs(subs) do
-        cb.update();
+    local subs = clone(self.subs);
+    for _,watcher in ipairs(subs) do
+        watcher:update();
     end
 end
 
