@@ -1,4 +1,10 @@
 
+local Observer = class('Observer');
+
+function Observer:ctor(value)
+    self.value = value;
+end
+
 local function observe(original)
 
     if type(original) ~= 'table' then
@@ -23,7 +29,7 @@ local function observe(original)
     function proxy:pairs(fun)
         for key,value in pairs(original) do
             if fun(key,value) then
-                return;
+                break;
             end
         end
     end
@@ -31,21 +37,19 @@ local function observe(original)
     function proxy:ipairs(fun)
         for key,value in ipairs(original) do
             if fun(key,value) then
-                return;
+                break;
             end
         end
     end
 
     function proxy:insert(...) --数组添加
         local args = {...};
-        local ret = nil;
         if #args==1 then
-            ret = table.insert(original,observe(args[1])); --value
+            table.insert(original,observe(args[1])); --value
         else
-            ret = table.insert(original,args[1],observe(args[2]));--pos,value
+            table.insert(original,args[1],observe(args[2]));--pos,value
         end
         --notify
-        return ret;
     end
 
     function proxy:remove(...) --数组移除
@@ -55,9 +59,8 @@ local function observe(original)
     end
 
     function proxy:sort(...) --数组排序
-        local ret = table.sort(original,...);
+        table.sort(original,...);
         --notify
-        return ret;
     end
 
     -- core
@@ -80,6 +83,7 @@ local model = observe(data);
 model.A = 11;
 model.B = 22;
 
+model:insert(1,'byinsert')
 model:insert('byinsert')
 model:insert('byinsert')
 
