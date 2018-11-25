@@ -56,12 +56,12 @@ function Watcher:get()
     return value;
 end
 
-function Watcher:addDep(dep)
+function Watcher:addDep(dep) -- call by Dep
     dep:addSub(self);
     table.insert(self.deps,dep);
 end
 
-function Watcher:update()
+function Watcher:update() -- call by Dep
     self:run();
 end
 
@@ -70,18 +70,6 @@ function Watcher:run()
     local value = self:get();
     self.value = value;
     self.cb(self.vm, value, oldValue);
-end
-
-function Watcher:depend()
-    for _,v in ipairs(self.deps) do
-        v:depend();
-    end
-end
-
-function Watcher:teardown()
-    for _,v in ipairs(self.deps) do
-        v:removeSub(self);
-    end
 end
 
 return Watcher;

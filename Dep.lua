@@ -6,21 +6,22 @@ function Dep:ctor()
     self.subs = {}; --Array<Watcher>
 end
 
-function Dep:addSub(sub)
+function Dep:addSub(sub) -- call by Watcher
     table.insert(self.subs,sub)
 end
 
-function Dep:removeSub(sub)
+function Dep:removeSub(sub) -- call by Watcher
     table.removebyvalue(self.subs,sub)
 end
 
-function Dep:depend()
+
+function Dep:depend() -- call by observe
     if Dep.target then
         Dep.target:addDep(self);
     end
 end
 
-function Dep:notify()
+function Dep:notify() -- call by observe
     local subs = clone(self.subs);
     for _,watcher in ipairs(subs) do
         watcher:update();
