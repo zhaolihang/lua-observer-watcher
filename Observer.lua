@@ -23,7 +23,9 @@ local function observe(original)
     end
 
     local proxy = {};
+    local tableDep = Dep.new();
     rawset(proxy, '__is_proxy__', true);
+    rawset(proxy, '__dep__', tableDep);
     rawset(original, '__proxy__', proxy);
 
     function proxy:getn()
@@ -48,30 +50,24 @@ local function observe(original)
         end
     end
 
-    -- function proxy:insert(...) -- 数组添加
-    --     local args = {...};
-    --     if #args==1 then
-    --         table.insert(original,observe(args[1])); -- value
-    --     else
-    --         table.insert(original,args[1],observe(args[2]));-- pos,value
-    --     end
-    --     if tableDep then 
-    --         tableDep:notify();
-    --     end
-    -- end
-    -- function proxy:remove(...) -- 数组移除
-    --     local ret = table.remove(original,...);
-    --     if tableDep then 
-    --         tableDep:notify();
-    --     end
-    --     return ret;
-    -- end
-    -- function proxy:sort(...) -- 数组排序
-    --     table.sort(original,...);
-    --     if tableDep then 
-    --         tableDep:notify();
-    --     end
-    -- end
+    function proxy:insert(...) -- 数组添加
+        local args = {...};
+        if #args==1 then
+            table.insert(original,observe(args[1])); -- value
+        else
+            table.insert(original,args[1],observe(args[2]));-- pos,value
+        end
+        tableDep:notify();
+    end
+    function proxy:remove(...) -- 数组移除
+        local ret = table.remove(original,...);
+        tableDep:notify();
+        return ret;
+    end
+    function proxy:sort(...) -- 数组排序
+        table.sort(original,...);
+        tableDep:notify();
+    end
 
     -- core
     local __index = function(t,k) -- getter
@@ -80,6 +76,10 @@ local function observe(original)
                 deps[k] = Dep.new();
             end
             deps[k]:depend();
+            if type(original[k]) == 'table' then
+                local tableDep = rawget(original[k], '__dep__');
+                tableDep:depend();
+            end
         end
         return original[k];
     end
@@ -88,10 +88,11 @@ local function observe(original)
             deps[k] = Dep.new();
         end
         local oldValue = original[k];
-        local newValue = observe(v,deps[k]);
+        local newValue = observe(v);
         if newValue ~= oldValue then
             original[k] = newValue;
             deps[k]:notify();
+            tableDep:notify();
         end
     end
     local metatable = { __index = __index; __newindex = __newindex; }
@@ -100,15 +101,19 @@ local function observe(original)
     return proxy;
 end
 
-local data = {A = 1};
+local data = {A = {3,2,1} };
 local model = observe(data);
 
 local w = Watcher.new(model,'A',function (vm, newV, oldV) 
     print(newV,oldV);
 end);
 
-model.A = 11;
+model.A:sort();
 
-model:pairs(function(k,v)
+model.A:pairs(function(k,v)
     print('*pairs: ',k,v);
 end);
+
+-- model:pairs(function(k,v)
+--     print('*pairs: ',k,v);
+-- end);

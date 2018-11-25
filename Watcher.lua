@@ -67,9 +67,11 @@ end
 
 function Watcher:run()
     local oldValue = self.value;
-    local value = self:get();
-    self.value = value;
-    self.cb(self.vm, value, oldValue);
+    local newValue = self:get();
+    if newValue ~= oldValue or type(newValue) == 'table' then
+        self.value = newValue;
+        self.cb(self.vm, oldValue, newValue);
+    end
 end
 
 return Watcher;
