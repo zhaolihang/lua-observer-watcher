@@ -20,7 +20,7 @@ end
 
 local function parsePath(path)
     local segments = segmentsPath(path);
-    return function(self,obj)
+    return function(obj)
         return getObjBySegments(obj, segments);
     end
 end
@@ -51,7 +51,7 @@ end
 
 function Watcher:get()
     pushTarget(self);
-    local value = self.getter(self.vm, self.vm);
+    local value = self.getter(self.vm);
     popTarget();
     return value;
 end
