@@ -159,7 +159,7 @@ end
 
 function shallowcopy(object)
     local ret = {};
-    for k,v in ipairs(object) do
+    for k,v in pairs(object) do
         ret[k] = v;
     end
     return ret;
