@@ -21,7 +21,7 @@ function Dep:depend() -- call by observe
 end
 
 function Dep:notify() -- call by observe
-    local subs = clone(self.subs);
+    local subs = shallowcopy(self.subs);
     for _,watcher in ipairs(subs) do
         watcher:update();
     end

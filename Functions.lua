@@ -126,9 +126,9 @@ local t1 = {a = 1, b = 2}
 local t2 = t1
 t2.b = 3    -- t1 = {a = 1, b = 3} <-- t1.b 发生变化
 
--- clone() 返回 t1 的副本，修改 t2 不会影响 t1
+-- deepcopy() 返回 t1 的副本，修改 t2 不会影响 t1
 local t1 = {a = 1, b = 2}
-local t2 = clone(t1)
+local t2 = deepcopy(t1)
 t2.b = 3    -- t1 = {a = 1, b = 2} <-- t1.b 不受影响
 
 ~~~
@@ -138,7 +138,7 @@ t2.b = 3    -- t1 = {a = 1, b = 2} <-- t1.b 不受影响
 @return mixed
 
 ]]
-function clone(object)
+function deepcopy(object)
     local lookup_table = {}
     local function _copy(object)
         if type(object) ~= "table" then
@@ -154,6 +154,15 @@ function clone(object)
         return setmetatable(new_table, getmetatable(object))
     end
     return _copy(object)
+end
+
+
+function shallowcopy(object)
+    local ret = {};
+    for k,v in ipairs(object) do
+        ret[k] = v;
+    end
+    return ret;
 end
 
 --[[--

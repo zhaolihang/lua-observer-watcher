@@ -83,7 +83,7 @@ local pending = false;
 
 nextTickHandler = function ()
     pending = false;
-    local copies = clone(callbacks);
+    local copies = shallowcopy(callbacks);
     callbacks = {};
     for _,v in ipairs(copies) do
         v();
