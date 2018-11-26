@@ -1,6 +1,4 @@
-local Deps = require('Dep');
-local Dep = Deps.Dep;
-local Watcher = require('Watcher');
+local Dep = import('.Dep',...).Dep;
 
 local function observe(original)
 
@@ -101,19 +99,7 @@ local function observe(original)
     return proxy;
 end
 
-local data = {A = {3,2,1} };
-local model = observe(data);
 
-local w = Watcher.new(model,'A',function (vm, newV, oldV) 
-    -- print(newV,oldV);
-end);
-
-model.A:sort();
-
-model.A:pairs(function(k,v)
-    print('*pairs: ',k,v);
-end);
-
--- model:pairs(function(k,v)
---     print('*pairs: ',k,v);
--- end);
+return {
+    observe = observe;
+};

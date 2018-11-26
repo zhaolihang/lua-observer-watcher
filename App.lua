@@ -1,3 +1,2 @@
 require('Functions')
-require('Observer')
-require('Scheduler')
+require('Test')

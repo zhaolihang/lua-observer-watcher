@@ -1,9 +1,7 @@
-local Deps = require('Dep');
-local Dep = Deps.Dep;
+local Deps = import('.Dep',...);
 local pushTarget = Deps.pushTarget;
 local popTarget = Deps.popTarget;
-local Scheduler = require('Scheduler');
-local queueWatcher = Scheduler.queueWatcher;
+local queueWatcher = import('.Scheduler').queueWatcher;
 
 local function segmentsPath(path)
     local segments = string.split(path, '.')
