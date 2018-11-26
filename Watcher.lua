@@ -2,6 +2,8 @@ local Deps = require('Dep');
 local Dep = Deps.Dep;
 local pushTarget = Deps.pushTarget;
 local popTarget = Deps.popTarget;
+local Scheduler = require('Scheduler');
+local queueWatcher = Scheduler.queueWatcher;
 
 local function segmentsPath(path)
     local segments = string.split(path, '.')
@@ -25,17 +27,24 @@ local function parsePath(path)
     end
 end
 
+local uid = 0;
 local Watcher = class('Watcher');
 
-function Watcher:ctor(vm,expOrFn,cb)
-    if rawget(vm,'_watchers') == nil then
-        rawset(vm,'_watchers',{})
-    end
-    table.insert(rawget(vm,'_watchers'),self);
+function Watcher:ctor(vm,expOrFn,cb,options)
 
+    if options then
+        self.sync = options.sync or false;
+    else
+        self.sync = false;
+    end
+
+    uid = uid + 1;
+    self.id = uid;
+    self.active = true;
     self.vm = vm;
     self.cb = cb;
     self.deps = {};
+    self.newDeps = {};
 
     if type(expOrFn) == 'function' then
         self.getter = expOrFn;
@@ -53,24 +62,57 @@ function Watcher:get()
     pushTarget(self);
     local value = self.getter(self.vm);
     popTarget();
+    self:cleanupDeps();
     return value;
 end
 
 function Watcher:addDep(dep) -- call by Dep
-    dep:addSub(self);
-    table.insert(self.deps,dep);
+    if not self.newDeps[dep] then
+        self.newDeps[dep] = true;
+        if not self.deps[dep] then
+            self.deps[dep] = true;
+            dep:addSub(self);
+        end
+    end
+end
+
+
+function Watcher:cleanupDeps() -- private
+    for dep,_ in pairs(self.deps) do
+        if not self.newDeps[dep] then
+            dep:removeSub(self);
+        end
+    end
+    self.deps = self.newDeps;
+    self.newDeps = {};
 end
 
 function Watcher:update() -- call by Dep
-    self:run();
+    if self.sync then
+        self:run();
+    else
+        queueWatcher(self);
+    end
 end
 
 function Watcher:run()
-    local oldValue = self.value;
-    local newValue = self:get();
-    if newValue ~= oldValue or type(newValue) == 'table' then
-        self.value = newValue;
-        self.cb(self.vm, oldValue, newValue);
+    if self.active then
+        local newValue = self:get();
+        local oldValue = self.value;
+        if newValue ~= oldValue or type(newValue) == 'table' then
+            self.value = newValue;
+            self.cb(self.vm, newValue ,oldValue);
+        end
+    end
+end
+
+function Watcher:teardown()
+    if self.active then
+        for dep,_ in pairs(self.deps) do
+            dep:removeSub(self);
+        end
+        self.deps = {};
+        self.active = false;
     end
 end
 

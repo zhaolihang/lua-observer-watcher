@@ -14,7 +14,6 @@ function Dep:removeSub(sub) -- call by Watcher
     table.removebyvalue(self.subs,sub)
 end
 
-
 function Dep:depend() -- call by observe
     if Dep.target then
         Dep.target:addDep(self);
@@ -30,13 +29,13 @@ end
 
 
 local targetStack = {};
-local function pushTarget(_target) 
+local function pushTarget(_target) -- call by Watcher
     if Dep.target then
         table.insert(targetStack,_target);
     end
     Dep.target = _target;
 end
-local function popTarget()
+local function popTarget() -- call by Watcher
     Dep.target = table.remove(targetStack);
 end
 

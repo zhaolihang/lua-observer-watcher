@@ -17,8 +17,14 @@ local function observe(original)
     end
 
     local deps = {};
+    local function getDep(k)
+        if deps[k] == nil then
+            deps[k] = Dep.new();
+        end
+        return deps[k];
+    end
     for k,v in pairs(original) do
-        deps[k] = Dep.new();
+        getDep(k);
         original[k] = observe(v);
     end
 
@@ -72,26 +78,20 @@ local function observe(original)
     -- core
     local __index = function(t,k) -- getter
         if Dep.target then
-            if deps[k] == nil then
-                deps[k] = Dep.new();
-            end
-            deps[k]:depend();
+            getDep(k):depend();
             if type(original[k]) == 'table' then
-                local tableDep = rawget(original[k], '__dep__');
-                tableDep:depend();
+                local childTableDep = rawget(original[k], '__dep__');
+                childTableDep:depend();
             end
         end
         return original[k];
     end
     local __newindex = function(t,k,v) -- setter
-        if deps[k] == nil then
-            deps[k] = Dep.new();
-        end
         local oldValue = original[k];
         local newValue = observe(v);
         if newValue ~= oldValue then
             original[k] = newValue;
-            deps[k]:notify();
+            getDep(k):notify();
             tableDep:notify();
         end
     end
@@ -105,7 +105,7 @@ local data = {A = {3,2,1} };
 local model = observe(data);
 
 local w = Watcher.new(model,'A',function (vm, newV, oldV) 
-    print(newV,oldV);
+    -- print(newV,oldV);
 end);
 
 model.A:sort();
