@@ -26,7 +26,7 @@ end
 flushSchedulerQueue = function ()
     flushing = true;
 
-    table.sort(function(a,b)
+    table.sort(queue,function(a,b)
         return a.id - b.id;
     end)
 
