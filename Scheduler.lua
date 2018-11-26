@@ -40,7 +40,7 @@ flushSchedulerQueue = function ()
         if has[watcher] then
             circular[watcher] = (circular[watcher] or 0) + 1;
             if circular[watcher] > MAX_UPDATE_COUNT then
-                -- error('circulard update!');
+                error('circulard update!');
                 break;
             end
         end

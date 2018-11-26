@@ -30,6 +30,10 @@ local Watcher = class('Watcher');
 
 function Watcher:ctor(vm,expOrFn,cb,options)
 
+    if not rawget(vm,'__is_proxy__') then
+        error('vm not a proxy!'); 
+    end
+
     if options then
         self.sync = options.sync or false;
     else
