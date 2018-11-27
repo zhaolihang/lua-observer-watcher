@@ -27,7 +27,7 @@ flushSchedulerQueue = function ()
     flushing = true;
 
     table.sort(queue,function(a,b)
-        return a.id - b.id;
+        return a.id < b.id;
     end)
 
     index = 1;
