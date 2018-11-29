@@ -10,9 +10,10 @@ end,{sync = true});
 
 model.A:sort();
 
-model.A:pairs(function(k,v)
-    print('*pairs: ',k,v);
-end);
+local copy = model:copy();
+-- model.A:pairs(function(k,v)
+--     print('*pairs: ',k,v);
+-- end);
 
 -- model:pairs(function(k,v)
 --     print('*pairs: ',k,v);

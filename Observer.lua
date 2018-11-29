@@ -54,6 +54,18 @@ local function observe(original)
         end
     end
 
+    function proxy:copy()
+        local ret = {};
+        self:pairs(function(k,v)
+            if type(v) == 'table' then
+                ret[k] = v:copy();
+            else
+                ret[k] = v;
+            end
+        end);
+        return ret;
+    end
+
     function proxy:insert(...) -- 数组添加
         local args = {...};
         if #args==1 then
